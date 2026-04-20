@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+pandas
+numpy
+torch
+scikit-learn
+joblib
+pydantic
+python-multipart
+httpx
+pytest
+pytest-asyncio
+pytest-cov

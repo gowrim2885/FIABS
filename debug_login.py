@@ -2,7 +2,7 @@ import httpx
 import json
 
 def test_login():
-    url = "http://127.0.0.1:8000/auth/login"
+    url = "http://127.0.0.1:8001/auth/login"
     payload = {
         "username": "admin",
         "password": "policy123",

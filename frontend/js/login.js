@@ -1,6 +1,6 @@
-const API_BASE_URL = "http://127.0.0.1:8000";
-// v1.0.1 - Ensuring username is included in payload
-console.log("login.js v1.0.1 loaded");
+const API_BASE_URL = "http://127.0.0.1:8001";
+// v1.0.2 - Fixed port mismatch (8001)
+console.log("login.js v1.0.2 loaded");
 
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("loginForm");

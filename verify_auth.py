@@ -2,7 +2,7 @@ import httpx
 import json
 
 def test_login():
-    url = "http://127.0.0.1:8000/auth/login"
+    url = "http://127.0.0.1:8001/auth/login"
     
     # Test valid login (Policy Maker)
     payload = {

@@ -782,7 +782,7 @@
     <script src="./js/session.js"></script>
     <script>
         const session = requireRole(["policy", "analyst"], "./login.html");
-        const API_BASE_URL = "http://127.0.0.1:8000";
+        const API_BASE_URL = "http://127.0.0.1:8001";
         const currencyFormatter = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 });
         const trillionFormatter = new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         let gdpChart;
@@ -831,22 +831,48 @@
                 const input = document.getElementById("chatQuestion");
                 input.focus();
 
-                // Welcome message
-                const history = document.getElementById("chatResponse");
-                if (history.children.length === 0) {
+                // Load history if not already loaded
+                const historyContainer = document.getElementById("chatResponse");
+                if (historyContainer.children.length <= 1) {
+                    loadChatHistory();
+                }
+
+                // If chat is still empty, add welcome message
+                if (historyContainer.children.length === 0) {
                     addChatBubble("ai", "Greetings! I'm your FIABS assistant. How can I help you with the budget and strategy today?");
                 }
             }
         }
 
-        function addChatBubble(role, text) {
+        function addChatBubble(role, text, save = true) {
             const history = document.getElementById("chatResponse");
             const bubble = document.createElement("div");
             bubble.className = `chat-bubble ${role}`;
             bubble.textContent = text;
             history.appendChild(bubble);
             history.scrollTop = history.scrollHeight;
+
+            if (save) {
+                saveChatHistory(role, text);
+            }
             return bubble;
+        }
+
+        function saveChatHistory(role, text) {
+            const history = JSON.parse(localStorage.getItem("fiabs.chat_history") || "[]");
+            history.push({ role, text, timestamp: new Date().getTime() });
+            localStorage.setItem("fiabs.chat_history", JSON.stringify(history.slice(-30))); // Keep last 30 messages
+        }
+
+        function loadChatHistory() {
+            const historyContainer = document.getElementById("chatResponse");
+            const history = JSON.parse(localStorage.getItem("fiabs.chat_history") || "[]");
+            if (history.length > 0) {
+                historyContainer.innerHTML = "";
+                history.forEach(item => {
+                    addChatBubble(item.role, item.text, false);
+                });
+            }
         }
 
         async function askChatbot() {
