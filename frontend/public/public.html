@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIABS | Public Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0B1220;
+            --surface: #111827;
+            --surface-strong: #1F2937;
+            --accent: #10B981;
+            --accent-soft: rgba(16, 185, 129, 0.1);
+            --ink: #F9FAFB;
+            --muted: #9CA3AF;
+            --line: #1F2937;
+            --blue: #3B82F6;
+            --orange: #F59E0B;
+            --gold: #D4A017;
+            --primary: #3B82F6;
+        }
+
+        [data-theme="light"] {
+            --bg: #F3F4F6;
+            --surface: #FFFFFF;
+            --surface-strong: #F9FAFB;
+            --ink: #111827;
+            --muted: #6B7280;
+            --line: #E5E7EB;
+            --blue: #2563EB;
+            --primary: #2563EB;
+            --accent-soft: rgba(16, 185, 129, 0.05);
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--ink);
+            line-height: 1.5;
+        }
+
+        .topbar {
+            background: rgba(17, 24, 39, 0.8);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--line);
+            position: sticky;
+            top: 0;
+            z-index: 20;
+        }
+
+        .topbar-inner {
+            max-width: 1320px;
+            margin: 0 auto;
+            padding: 12px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .brand strong {
+            display: block;
+            font-size: 1.1rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+        }
+
+        .brand span {
+            color: var(--muted);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .theme-toggle-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: var(--surface-strong);
+            border: 1px solid var(--line);
+            color: var(--ink);
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .theme-toggle-btn:hover {
+            border-color: var(--primary);
+            transform: translateY(-1px);
+        }
+
+        .pill, .link-btn, select {
+            font-family: inherit;
+            border-radius: 8px;
+            padding: 8px 14px;
+            border: 1px solid var(--line);
+            background: var(--surface-strong);
+            color: var(--ink);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        select:hover {
+            border-color: var(--primary);
+        }
+
+        .pill {
+            background: var(--accent-soft);
+            border-color: transparent;
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .page {
+            max-width: 1320px;
+            margin: 0 auto;
+            padding: 32px 24px 120px;
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: 1.15fr 0.85fr;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .hero-card, .card {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .hero-card {
+            padding: 32px;
+        }
+
+        .hero-card h1 {
+            margin: 0 0 16px;
+            font-size: clamp(2rem, 3.5vw, 3rem);
+            line-height: 1.1;
+            letter-spacing: -0.03em;
+            font-weight: 700;
+        }
+
+        .hero-card p {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.6;
+            max-width: 600px;
+            font-size: 1rem;
+        }
+
+        .hero-side {
+            display: grid;
+            gap: 16px;
+        }
+
+        .headline-stat {
+            padding: 24px;
+            border-radius: 16px;
+            color: white;
+            background: linear-gradient(135deg, var(--accent), #059669);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .headline-stat strong {
+            display: block;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 0.7rem;
+            opacity: 0.8;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .headline-stat span {
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 24px;
+        }
+
+        .kpis {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .card {
+            padding: 24px;
+        }
+
+        .kpi-label {
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 0.7rem;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .kpi-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--primary);
+        }
+
+        .kpi-note {
+            color: var(--muted);
+            line-height: 1.5;
+            font-size: 0.875rem;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .card h2, .card h3 {
+            margin-top: 0;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+
+        .chart-shell {
+            height: 340px;
+        }
+
+        .insights-grid {
+            display: grid;
+            gap: 12px;
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        @media (max-width: 800px) {
+            .insights-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .insight-box {
+            border-radius: 18px;
+            padding: 16px;
+            background: var(--surface-strong);
+            border: 1px solid var(--line);
+            line-height: 1.6;
+        }
+
+        .insight-box strong {
+            display: block;
+            color: var(--primary);
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+
+        .table-card table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table-card th, .table-card td {
+            text-align: left;
+            padding: 14px 12px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .table-card th {
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-size: 0.72rem;
+        }
+
+        .table-card tr:hover td {
+            background: var(--surface-strong);
+        }
+
+        .good { color: var(--accent); }
+        .warn { color: var(--gold); }
+        .bad { color: var(--orange); }
+
+        .table-container {
+            max-height: 350px;
+            overflow: hidden;
+            position: relative;
+            transition: max-height 0.3s ease;
+        }
+
+        .table-container.expanded {
+            max-height: none;
+        }
+
+        .table-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 80px;
+            background: linear-gradient(transparent, var(--surface));
+            pointer-events: none;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 10px;
+        }
+
+        .table-container.expanded .table-overlay {
+            display: none;
+        }
+
+        .view-more-btn {
+            display: block;
+            width: fit-content;
+            margin: 16px auto 0;
+            padding: 8px 20px;
+            background: var(--surface-strong);
+            border: 1px solid var(--line);
+            color: var(--primary);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .view-more-btn:hover {
+            background: var(--line);
+            transform: translateY(-1px);
+        }
+
+        .chatbot {
+            position: fixed;
+            right: 24px;
+            bottom: 80px;
+            width: min(480px, calc(100vw - 32px));
+            height: 580px;
+            background: var(--surface);
+            color: var(--ink);
+            border-radius: 20px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--line);
+            overflow: hidden;
+            z-index: 40;
+            display: none;
+            flex-direction: column;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .chatbot-toggle {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            width: 56px;
+            height: 56px;
+            border-radius: 28px;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+            z-index: 41;
+            transition: all 0.2s;
+        }
+
+        .chatbot-toggle:hover {
+            transform: scale(1.05);
+            background: var(--blue);
+        }
+
+        .chat-header {
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--surface-strong);
+            border-bottom: 1px solid var(--line);
+        }
+
+        .chat-header strong {
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+
+        .chatbot-close {
+            cursor: pointer;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+            font-size: 1.2rem;
+        }
+
+        .chatbot-close:hover { opacity: 1; }
+
+        .chat-body {
+            padding: 20px;
+            display: grid;
+            gap: 16px;
+        }
+
+        .chat-response {
+            flex: 1;
+            min-height: 200px;
+            max-height: none;
+            overflow-y: auto;
+            border-radius: 12px;
+            padding: 14px;
+            background: var(--surface-strong);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--ink);
+            border: 1px solid var(--line);
+            margin-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .chat-bubble {
+            padding: 10px 14px;
+            border-radius: 14px;
+            max-width: 85%;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            position: relative;
+        }
+
+        .chat-bubble.ai {
+            background: var(--line);
+            color: var(--ink);
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+        }
+
+        .chat-bubble.user {
+            background: var(--primary);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 2px;
+        }
+
+        .chat-bubble.loading {
+            opacity: 0.7;
+            font-style: italic;
+        }
+
+        .chat-body {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            height: calc(100% - 60px);
+        }
+
+        .chat-row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .chat-row input {
+            flex: 1;
+            border-radius: 8px;
+            padding: 10px 14px;
+            background: var(--surface-strong);
+            color: var(--ink);
+            border: 1px solid var(--line);
+        }
+
+        .chat-row button {
+            border-radius: 8px;
+            padding: 0 16px;
+            background: var(--primary);
+            color: white;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+        }
+
+        @media (max-width: 1080px) {
+            .hero, .main-grid, .kpis {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="topbar">
+        <div class="topbar-inner">
+            <div class="brand">
+                <strong>FIABS Public Dashboard</strong>
+                <span>Clear fiscal data, readable insights, and plain-language answers for public users</span>
+            </div>
+            <div class="actions">
+                <div class="theme-toggle-btn" onclick="toggleTheme()" title="Toggle Theme">
+                    <svg id="themeIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <!-- Icon set by JS -->
+                    </svg>
+                </div>
+                <span class="pill" id="rolePill">Signed in</span>
+                <a class="link-btn" href="../index.html">Enterprise View</a>
+                <button class="link-btn" onclick="logout('../login.html')">Logout</button>
+            </div>
+        </div>
+    </header>
+
+    <main class="page">
+        <section class="hero">
+            <div class="hero-card">
+                <h1>Public budget data that feels understandable at a glance.</h1>
+                <p>
+                    We cleaned the merged fiscal CSV, organized it year by year, and made the key insights easier to read for public users. Use the year and department filters to explore where budget allocations and actual spending moved.
+                </p>
+                <div class="toolbar">
+                    <select id="yearSelect"></select>
+                    <select id="departmentSelect"></select>
+                </div>
+            </div>
+            <div class="hero-side">
+                <div class="headline-stat">
+                    <strong>Selected Year</strong>
+                    <span id="headlineYear">--</span>
+                </div>
+                <div class="headline-stat" style="background: linear-gradient(135deg, #2364aa, #5aa9e6);">
+                    <strong>Top Department</strong>
+                    <span id="headlineTopDept">Loading...</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="kpis">
+            <article class="card">
+                <div class="kpi-label">Total Budget</div>
+                <div class="kpi-value" id="kpiBudget">--</div>
+                <div class="kpi-note">Combined planned budget for the selected view.</div>
+            </article>
+            <article class="card">
+                <div class="kpi-label">Total Spending</div>
+                <div class="kpi-value" id="kpiSpending">--</div>
+                <div class="kpi-note">Actual spending recorded in the uploaded dataset.</div>
+            </article>
+            <article class="card">
+                <div class="kpi-label">Average Inflation</div>
+                <div class="kpi-value" id="kpiInflation">--</div>
+                <div class="kpi-note">Inflation average for the selected year.</div>
+            </article>
+            <article class="card">
+                <div class="kpi-label">Predicted GDP</div>
+                <div class="kpi-value" id="kpiGDP">--</div>
+                <div class="kpi-note">Latest model estimate from the processed fiscal series.</div>
+            </article>
+        </section>
+
+        <section class="main-grid">
+            <article class="card">
+                <h2>Budget vs Spending</h2>
+                <div class="chart-shell"><canvas id="allocationChart"></canvas></div>
+            </article>
+            <article class="card">
+                <h2>GDP Growth Trend</h2>
+                <div class="chart-shell"><canvas id="trendChart"></canvas></div>
+            </article>
+        </section>
+
+        <section class="card" style="margin-bottom: 32px;">
+            <h2>Department Snapshot</h2>
+            <div class="table-container" id="tableContainer">
+                <div style="overflow-x: auto;">
+                    <table class="table-card">
+                        <thead>
+                            <tr>
+                                <th>Department</th>
+                                <th>Budget</th>
+                                <th>Spending</th>
+                                <th>Balance</th>
+                                <th>Use Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
+                </div>
+                <div class="table-overlay"></div>
+            </div>
+            <button class="view-more-btn" id="viewMoreBtn" onclick="toggleTable()">View Full Data</button>
+        </section>
+
+        <section class="card">
+            <h2>Public Insights & Narrative</h2>
+            <div class="insights-grid" id="insightsGrid"></div>
+        </section>
+    </main>
+
+    <aside class="chatbot" id="chatbotWindow">
+        <div class="chat-header">
+            <strong>Public Fiscal Assistant</strong>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span id="chatYear" style="font-size: 0.8rem; color: var(--muted);">Year --</span>
+                <span class="chatbot-close" onclick="toggleChatbot()">×</span>
+            </div>
+        </div>
+        <div class="chat-body">
+            <div class="chat-response" id="chatResponse">Ask about the highest-spending department, inflation, or a specific department. The assistant answers directly from the dataset.</div>
+            <div class="chat-row">
+                <input id="chatQuestion" placeholder="Ask about this year's budget" onkeypress="if(event.key === 'Enter') askChatbot()">
+                <button onclick="askChatbot()">Ask</button>
+            </div>
+        </div>
+    </aside>
+
+    <div class="chatbot-toggle" id="chatbotToggle" onclick="toggleChatbot()">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+    </div>
+
+    <script src="../js/session.js"></script>
+    <script>
+        const session = requireRole(["policy", "analyst", "public"], "../login.html");
+        const API_BASE_URL = "http://127.0.0.1:8000";
+        const moneyFormat = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 });
+        const trillions = new Intl.NumberFormat("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        let allData = [];
+        let allocationChart;
+        let trendChart;
+
+        function money(value) {
+            return `$${moneyFormat.format(Number(value || 0))}`;
+        }
+
+        function trillion(value) {
+            return `$${trillions.format(Number(value || 0) / 1e12)}T`;
+        }
+
+        // Theme Toggle Logic
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+            updateThemeIcon(theme);
+        }
+
+        function toggleTheme() {
+            const currentTheme = localStorage.getItem('theme') || 'dark';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            setTheme(newTheme);
+        }
+
+        function updateThemeIcon(theme) {
+            const icon = document.getElementById('themeIcon');
+            if (theme === 'light') {
+                icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>'; // Moon
+            } else {
+                icon.innerHTML = '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>'; // Sun
+            }
+        }
+
+        function toggleChatbot() {
+            const chat = document.getElementById("chatbotWindow");
+            const toggle = document.getElementById("chatbotToggle");
+            if (chat.style.display === "flex") {
+                chat.style.display = "none";
+                toggle.style.display = "flex";
+            } else {
+                chat.style.display = "flex";
+                toggle.style.display = "none";
+                const input = document.getElementById("chatQuestion");
+                input.focus();
+                
+                // If chat is empty, add welcome message
+                const history = document.getElementById("chatResponse");
+                if (history.children.length === 0) {
+                    addChatBubble("ai", "Hello! I'm your fiscal assistant. Ask me anything about the budget, spending, or inflation for the selected year.");
+                }
+            }
+        }
+
+        function addChatBubble(role, text) {
+            const history = document.getElementById("chatResponse");
+            const bubble = document.createElement("div");
+            bubble.className = `chat-bubble ${role}`;
+            bubble.textContent = text;
+            history.appendChild(bubble);
+            history.scrollTop = history.scrollHeight;
+            return bubble;
+        }
+
+        async function askChatbot() {
+            const year = Number(document.getElementById("yearSelect").value);
+            const input = document.getElementById("chatQuestion");
+            const question = input.value.trim();
+            if (!question) return;
+
+            // Clear input
+            input.value = "";
+
+            // Add user bubble
+            addChatBubble("user", question);
+
+            // Add loading bubble
+            const loadingBubble = addChatBubble("ai", "Thinking...");
+            loadingBubble.classList.add("loading");
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/public/chatbot/chat`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ question, year }),
+                });
+                const payload = await response.json();
+                
+                // Remove loading and add response
+                loadingBubble.remove();
+                addChatBubble("ai", payload.answer);
+            } catch (error) {
+                loadingBubble.remove();
+                addChatBubble("ai", "The fiscal assistant could not connect right now.");
+            }
+        }
+
+        function toggleTable() {
+            const container = document.getElementById("tableContainer");
+            const btn = document.getElementById("viewMoreBtn");
+            const isExpanded = container.classList.toggle("expanded");
+            btn.textContent = isExpanded ? "Show Less" : "View Full Data";
+        }
+
+        function setRole() {
+            document.getElementById("rolePill").textContent = session.name;
+        }
+
+        async function loadBootstrap() {
+            const [publicRes, trendRes, predictionRes] = await Promise.all([
+                fetch(`${API_BASE_URL}/public/data`),
+                fetch(`${API_BASE_URL}/insights/gdp-trend`),
+                fetch(`${API_BASE_URL}/predict_model/`),
+            ]);
+
+            const publicPayload = await publicRes.json();
+            const trendPayload = await trendRes.json();
+            const predictionPayload = await predictionRes.json();
+
+            allData = publicPayload.data || [];
+            populateFilters(publicPayload.years || []);
+            renderTrend(trendPayload);
+            document.getElementById("kpiGDP").textContent = predictionPayload.predicted_gdp ? money(predictionPayload.predicted_gdp) : "Model not ready";
+            applyFilters();
+        }
+
+        function populateFilters(years) {
+            const yearSelect = document.getElementById("yearSelect");
+            yearSelect.innerHTML = years.map((year) => `<option value="${year}">${year}</option>`).join("");
+            yearSelect.value = years[years.length - 1];
+            yearSelect.addEventListener("change", applyFilters);
+
+            const departments = [...new Set(allData.map((row) => row.department))].sort();
+            const departmentSelect = document.getElementById("departmentSelect");
+            departmentSelect.innerHTML = [`<option value="All">All Departments</option>`, ...departments.map((department) => `<option value="${department}">${department}</option>`)].join("");
+            departmentSelect.addEventListener("change", applyFilters);
+        }
+
+        async function applyFilters() {
+            const year = Number(document.getElementById("yearSelect").value);
+            const department = document.getElementById("departmentSelect").value;
+            const query = department && department !== "All" ? `?year=${year}&department=${encodeURIComponent(department)}` : `?year=${year}`;
+            const [filteredRes, summaryRes] = await Promise.all([
+                fetch(`${API_BASE_URL}/public/filtered-data${query}`),
+                fetch(`${API_BASE_URL}/public/summary?year=${year}`),
+            ]);
+
+            const filtered = await filteredRes.json();
+            const summary = await summaryRes.json();
+            const rows = Array.isArray(filtered) ? filtered : [];
+            const displayRows = department === "All" ? rows : rows.filter((row) => row.department === department);
+
+            document.getElementById("headlineYear").textContent = year;
+            document.getElementById("chatYear").textContent = `Year ${year}`;
+            document.getElementById("headlineTopDept").textContent = summary.top_department || "Unavailable";
+            document.getElementById("kpiBudget").textContent = money(displayRows.reduce((sum, row) => sum + Number(row.revenue || 0), 0));
+            document.getElementById("kpiSpending").textContent = money(displayRows.reduce((sum, row) => sum + Number(row.expenditure || 0), 0));
+            document.getElementById("kpiInflation").textContent = `${Number(summary.average_inflation || 0).toFixed(2)}%`;
+
+            renderInsights(summary, department);
+            renderAllocation(displayRows);
+            renderTable(displayRows);
+        }
+
+        function renderInsights(summary, department) {
+            const target = document.getElementById("insightsGrid");
+            const customInsights = [
+                summary.insights?.[0] || "Top spending is highlighted from the selected data.",
+                summary.insights?.[1] || "Budget usage is calculated from actual spending versus allocation.",
+                department === "All"
+                    ? `Largest budget gap department: ${summary.largest_budget_gap_department || "Unavailable"}.`
+                    : `${department} stays in focus in the chart and table below.`,
+            ];
+            target.innerHTML = customInsights.map((item, index) => `
+                <div class="insight-box">
+                    <strong>${index === 0 ? "What stands out" : index === 1 ? "Why it matters" : "What to watch"}</strong>
+                    <span>${item}</span>
+                </div>
+            `).join("");
+        }
+
+        function renderAllocation(rows) {
+            const ctx = document.getElementById("allocationChart").getContext("2d");
+            if (allocationChart) allocationChart.destroy();
+            allocationChart = new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: rows.map((row) => row.department),
+                    datasets: [
+                        { label: "Budget", data: rows.map((row) => row.revenue), backgroundColor: "#2364aa" },
+                        { label: "Spending", data: rows.map((row) => row.expenditure), backgroundColor: "#e76f51" },
+                    ],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { position: "bottom" } },
+                },
+            });
+        }
+
+        function renderTrend(payload) {
+            const ctx = document.getElementById("trendChart").getContext("2d");
+            if (trendChart) trendChart.destroy();
+            trendChart = new Chart(ctx, {
+                type: "line",
+                data: {
+                    labels: payload.years,
+                    datasets: [{
+                        label: "GDP Trend",
+                        data: payload.gdp,
+                        borderColor: "#14532d",
+                        backgroundColor: "rgba(20, 83, 45, 0.12)",
+                        fill: true,
+                        tension: 0.35,
+                    }],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { ticks: { callback: (value) => trillion(value) } },
+                    },
+                },
+            });
+        }
+
+        function renderTable(rows) {
+            const body = document.getElementById("tableBody");
+            body.innerHTML = rows.map((row) => {
+                const balance = Number(row.budget_balance || (row.revenue - row.expenditure));
+                const utilization = Number(row.utilization_rate || 0) * 100;
+                const tone = utilization > 100 ? "bad" : utilization > 90 ? "warn" : "good";
+                return `
+                    <tr>
+                        <td>${row.department}</td>
+                        <td>${money(row.revenue)}</td>
+                        <td>${money(row.expenditure)}</td>
+                        <td class="${balance >= 0 ? "good" : "bad"}">${money(balance)}</td>
+                        <td class="${tone}">${utilization.toFixed(1)}%</td>
+                    </tr>
+                `;
+            }).join("");
+        }
+
+        async function bootstrap() {
+            // Initialize theme
+            const savedTheme = localStorage.getItem('theme') || 'dark';
+            setTheme(savedTheme);
+
+            setRole();
+            await loadBootstrap();
+        }
+
+        bootstrap();
+    </script>
+</body>
+</html>

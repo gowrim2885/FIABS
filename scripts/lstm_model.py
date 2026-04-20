@@ -12,26 +12,15 @@ from tensorflow.keras.layers import LSTM, Dense
 df = pd.read_csv("data/processed/final_dataset.csv")
 
 print("Columns:", df.columns)
-print("Available Parameters:", df["Parameter"].unique())
 
-# -----------------------------
-# Step 2: Filter data
-# -----------------------------
-selected_param = "Revenue Receipts"   # 🔥 change if needed
-
-data = df[df["Parameter"] == selected_param]
-
-if data.empty:
-    raise ValueError(f"No data found for {selected_param}")
 
 # -----------------------------
 # Step 3: Aggregate correctly
 # -----------------------------
-data = data.groupby("Year").agg({
-    "Amount": "sum",
-    "GDP": "mean",
-    "Inflation": "mean"
-}).reset_index()
+data = df.sort_values("Year")
+
+print("\nProcessed Data:")
+print(data.head())
 
 print("\nProcessed Data:")
 print(data)
@@ -39,7 +28,16 @@ print(data)
 # -----------------------------
 # Step 4: Prepare multi-feature data
 # -----------------------------
-features = data[["Amount", "GDP", "Inflation"]]
+features = data[[
+    "Revenue",
+    "Expenditure",
+    "GDP",
+    "Inflation",
+    "Population",
+    "Unemployment",
+    "Interest_Rate",
+    "Fiscal_Deficit"
+]]
 
 scaler = MinMaxScaler()
 scaled_data = scaler.fit_transform(features)
@@ -89,19 +87,20 @@ last_sequence = scaled_data[-time_steps:]
 predictions = []
 
 for _ in range(future_steps):
-    input_seq = last_sequence.reshape(1, time_steps, 3)
+    input_seq = last_sequence.reshape(1, time_steps, len(features.columns))
 
     pred = model.predict(input_seq, verbose=0)
     predictions.append(pred[0][0])
 
     # keep GDP & Inflation same (last known values)
-    next_step = np.array([pred[0][0], last_sequence[-1][1], last_sequence[-1][2]])
+    next_step = last_sequence[-1].copy()
+    next_step[0] = pred[0][0]  # only update Revenue
     last_sequence = np.vstack((last_sequence[1:], next_step))
 
 # -----------------------------
 # Step 8: Inverse transform
 # -----------------------------
-pred_array = np.zeros((len(predictions), 3))
+pred_array = np.zeros((len(predictions), len(features.columns)))
 pred_array[:, 0] = predictions
 
 predictions = scaler.inverse_transform(pred_array)[:, 0]
@@ -109,7 +108,7 @@ predictions = scaler.inverse_transform(pred_array)[:, 0]
 # -----------------------------
 # Step 9: Output
 # -----------------------------
-print(f"\n🔮 Predictions for {selected_param}:")
+print("\n🔮 Revenue Predictions:")
 for i, val in enumerate(predictions):
     print(f"Year {data['Year'].max() + i + 1}: {val:,.2f}")
 
@@ -119,7 +118,7 @@ for i, val in enumerate(predictions):
 plt.figure(figsize=(10, 5))
 
 # Historical
-plt.plot(data["Year"], data["Amount"], marker='o', label="Historical")
+plt.plot(data["Year"], data["Revenue"], marker='o', label="Historical")
 
 # Future
 future_years = [data["Year"].max() + i for i in range(1, future_steps + 1)]

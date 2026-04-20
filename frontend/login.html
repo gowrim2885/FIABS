@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIABS | Login</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0B1220;
+            --surface: #111827;
+            --surface-strong: #1F2937;
+            --line: #1F2937;
+            --ink: #F9FAFB;
+            --muted: #9CA3AF;
+            --brand: #3B82F6;
+            --brand-dark: #2563EB;
+            --accent: #10B981;
+            --warning: #F59E0B;
+            --panel: rgba(17, 24, 39, 0.8);
+        }
+
+        [data-theme="light"] {
+            --bg: #F3F4F6;
+            --surface: #FFFFFF;
+            --surface-strong: #F9FAFB;
+            --line: #E5E7EB;
+            --ink: #111827;
+            --muted: #6B7280;
+            --brand: #2563EB;
+            --brand-dark: #1D4ED8;
+            --panel: rgba(255, 255, 255, 0.8);
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg);
+            color: var(--ink);
+            display: grid;
+            place-items: center;
+            padding: 24px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: var(--surface);
+            border: 1px solid var(--line);
+            color: var(--ink);
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            z-index: 100;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: all 0.2s;
+        }
+
+        .theme-toggle:hover {
+            transform: translateY(-2px);
+            border-color: var(--brand);
+        }
+
+        .shell {
+            width: min(1100px, 100%);
+            display: grid;
+            grid-template-columns: 1.2fr 0.9fr;
+            gap: 32px;
+        }
+
+        .hero, .login-card {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: 24px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        }
+
+        .hero {
+            padding: 48px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 640px;
+            background: linear-gradient(135deg, var(--surface), var(--surface-strong));
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 16px;
+            border-radius: 999px;
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--brand);
+            font-weight: 600;
+            font-size: 0.85rem;
+            width: fit-content;
+            margin-bottom: 24px;
+        }
+
+        h1 {
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            line-height: 1.1;
+            margin: 0 0 24px;
+            letter-spacing: -0.03em;
+            font-weight: 800;
+        }
+
+        .subtitle {
+            max-width: 560px;
+            color: var(--muted);
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-top: 48px;
+        }
+
+        .mini-card {
+            background: var(--surface-strong);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 20px;
+        }
+
+        .mini-card strong {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1rem;
+            font-weight: 700;
+        }
+
+        .mini-card span {
+            color: var(--muted);
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        .login-card {
+            padding: 40px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .login-card h2 {
+            margin: 0;
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        .role-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .role-option {
+            background: var(--surface-strong);
+            border: 1px solid var(--line);
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .role-option.active {
+            border-color: var(--brand);
+            background: rgba(59, 130, 246, 0.05);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .role-option:hover:not(.active) {
+            border-color: var(--muted);
+        }
+
+        .role-option strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .role-option p {
+            margin: 0;
+            color: var(--muted);
+            font-size: 0.85rem;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--muted);
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        input, button {
+            width: 100%;
+            border-radius: 10px;
+            border: 1px solid var(--line);
+            padding: 12px 16px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            transition: all 0.2s;
+        }
+
+        input {
+            background: var(--surface-strong);
+            color: var(--ink);
+            outline: none;
+        }
+
+        input:focus {
+            border-color: var(--brand);
+        }
+
+        button {
+            background: var(--brand);
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+        }
+
+        button:hover {
+            background: var(--brand-dark);
+            transform: translateY(-1px);
+        }
+
+        .hint, #loginStatus {
+            color: var(--muted);
+            font-size: 0.85rem;
+        }
+
+        .demo-strip {
+            border-radius: 12px;
+            background: rgba(245, 158, 11, 0.05);
+            border: 1px solid rgba(245, 158, 11, 0.1);
+            padding: 16px;
+            color: var(--warning);
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 920px) {
+            .shell { grid-template-columns: 1fr; }
+            .hero { min-height: auto; padding: 32px; }
+            .grid { grid-template-columns: 1fr; margin-top: 32px; }
+            .login-card { padding: 32px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="theme-toggle" id="themeToggle" onclick="toggleTheme()">
+        <svg id="themeIcon" width="20" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <!-- Initial icon set by JS -->
+        </svg>
+    </div>
+
+    <div class="shell">
+        <section class="hero">
+            <div>
+                <div class="eyebrow">FIABS Access Portal</div>
+                <h1>Fiscal intelligence with clearer data, faster answers, and role-based entry.</h1>
+                <p class="subtitle">
+                    Sign in as a policy maker, analyst, or public user. Each role lands in the right experience with the same cleaned fiscal dataset powering the dashboard and chatbot.
+                </p>
+            </div>
+
+            <div class="grid">
+                <div class="mini-card">
+                    <strong>Policy Maker</strong>
+                    <span>View strategic KPIs, forecasts, and executive insights.</span>
+                </div>
+                <div class="mini-card">
+                    <strong>Analyst</strong>
+                    <span>Upload data, retrain models, and run targeted fiscal analysis.</span>
+                </div>
+                <div class="mini-card">
+                    <strong>Public User</strong>
+                    <span>Explore transparent budget summaries and ask plain-language questions.</span>
+                </div>
+            </div>
+        </section>
+
+        <aside class="login-card">
+            <div>
+                <h2>Sign In</h2>
+                <p class="hint">Choose a role first. I prefilled the matching demo password pattern to keep testing easy.</p>
+            </div>
+
+            <div class="role-grid">
+                <div class="role-option active" data-role="policy">
+                    <strong>Policy Maker</strong>
+                    <p>Executive dashboard access and decision support.</p>
+                </div>
+                <div class="role-option" data-role="analyst">
+                    <strong>Analyst</strong>
+                    <p>Dataset upload, retraining, and deeper diagnostics.</p>
+                </div>
+                <div class="role-option" data-role="public">
+                    <strong>Public User</strong>
+                    <p>Public transparency dashboard and chatbot.</p>
+                </div>
+            </div>
+
+            <form id="loginForm">
+                <input id="role" type="hidden" value="policy">
+                <div>
+                    <label for="password">Password</label>
+                    <input id="password" type="password" value="policy123" autocomplete="current-password">
+                </div>
+                <button type="submit">Continue</button>
+            </form>
+
+            <div class="demo-strip">
+                Demo passwords: <code>policy123</code>, <code>analyst123</code>, <code>public123</code>
+            </div>
+            <div id="loginStatus"></div>
+        </aside>
+    </div>
+
+    <script src="./js/session.js"></script>
+    <script>
+        // Theme Toggle Logic
+        function setTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('theme', theme);
+            updateThemeIcon(theme);
+        }
+
+        function toggleTheme() {
+            const currentTheme = localStorage.getItem('theme') || 'dark';
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            setTheme(newTheme);
+        }
+
+        function updateThemeIcon(theme) {
+            const icon = document.getElementById('themeIcon');
+            if (theme === 'light') {
+                icon.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>'; // Moon
+            } else {
+                icon.innerHTML = '<circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>'; // Sun
+            }
+        }
+
+        // Initialize theme
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        setTheme(savedTheme);
+    </script>
+    <script src="./js/login.js"></script>
+</body>
+</html>

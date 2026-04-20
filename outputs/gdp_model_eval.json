@@ -1,0 +1,18 @@
+{
+  "dataset": "data/processed/final_dataset.csv",
+  "eval_points": 2,
+  "metrics": {
+    "mae": 2090697183.613037,
+    "rmse": 2092050802.0770445,
+    "mape_percent": 0.05988067867502037
+  },
+  "y_true": [
+    3346107287730.93,
+    3638489096033.86
+  ],
+  "y_pred": [
+    3344091835779.0845,
+    3636323153618.4795
+  ],
+  "note": "This is a tiny next-step evaluation on consecutive rows. For a meaningful accuracy estimate, expand the dataset (more years) and use a proper time-based train/validation split."
+}
