@@ -30,7 +30,12 @@ class InputData(BaseModel):
     revenue: float
     expenditure: float
 
+from fastapi.staticfiles import StaticFiles
+
 app = FastAPI()
+
+# Mount static files for the frontend
+app.mount("/frontend", StaticFiles(directory="frontend"), name="frontend")
 
 # Enable CORS
 app.add_middleware(
