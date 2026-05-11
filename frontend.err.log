@@ -1,0 +1,8 @@
+::1 - - [04/May/2026 23:35:26] "GET /frontend/login.html HTTP/1.1" 304 -
+::1 - - [04/May/2026 23:35:26] "GET /frontend/js/session.js?v=1.0.2 HTTP/1.1" 304 -
+::1 - - [04/May/2026 23:35:26] "GET /frontend/js/login.js?v=1.0.2 HTTP/1.1" 304 -
+::1 - - [04/May/2026 23:35:26] code 404, message File not found
+::1 - - [04/May/2026 23:35:26] "GET /favicon.ico HTTP/1.1" 404 -
+::1 - - [04/May/2026 23:38:05] "GET /frontend/public/public.html HTTP/1.1" 200 -
+::1 - - [04/May/2026 23:38:05] "GET /frontend/js/session.js HTTP/1.1" 304 -
+::1 - - [04/May/2026 23:38:12] "GET /frontend/index.html HTTP/1.1" 304 -
